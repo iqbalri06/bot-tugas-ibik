@@ -1,0 +1,14 @@
+{
+  "name": "botwa-tugas-ibik-web",
+  "version": "1.0.0",
+  "description": "Web Dashboard for Bot WA Tugas IBIK",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.22.1",
+    "express-session": "^1.19.0"
+  }
+}

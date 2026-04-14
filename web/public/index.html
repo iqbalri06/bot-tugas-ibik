@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Bot WA Tugas IBIK</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+    <!-- Topbar -->
+    <header class="tb">
+        <div class="tb-l">
+            <button class="hamburger" id="hamburgerBtn" onclick="toggleSidebar()">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+            <div class="tb-logo">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z" fill="white"/>
+                </svg>
+            </div>
+            <span class="tb-title">Bot WA Tugas IBIK</span>
+        </div>
+        <div class="tb-r">
+            <div class="bs" id="botStatus">
+                <span class="bs-dot offline" id="botDot"></span>
+                <span id="botText">Bot: Offline</span>
+            </div>
+            <div class="tb-user">
+                <div class="tb-avatar" id="userAvatar">-</div>
+                <div class="tb-user-info">
+                    <div class="tb-user-name" id="userName">-</div>
+                    <div class="tb-role" id="userRole">-</div>
+                </div>
+            </div>
+            <button class="tb-logout" onclick="logout()">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z" fill="currentColor"/>
+                </svg>
+                Logout
+            </button>
+        </div>
+    </header>
+
+    <!-- Mobile Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+    <div class="ly">
+        <!-- Sidebar -->
+        <aside class="sb" id="sidebar">
+            <div class="sb-section">
+                <a href="#" class="active" data-page="dashboard" onclick="navigate('dashboard')">
+                    <i class="fa-solid fa-chart-line"></i> Dashboard
+                </a>
+                <a href="#" data-page="tasks" onclick="navigate('tasks')">
+                    <i class="fa-solid fa-clipboard-list"></i> Kelola Tugas
+                </a>
+                <a href="#" id="navMyTasks" class="hidden" data-page="mytasks" onclick="navigate('mytasks')">
+                    <i class="fa-solid fa-user-check"></i> Tugas Saya
+                </a>
+                <a href="#" id="navUsers" class="hidden" data-page="users" onclick="navigate('users')">
+                    <i class="fa-solid fa-users"></i> User
+                </a>
+                <a href="#" id="navSettings" class="hidden" data-page="settings" onclick="navigate('settings')">
+                    <i class="fa-solid fa-gear"></i> Pengaturan
+                </a>
+            </div>
+            <div class="sb-divider"></div>
+            <div class="sb-section">
+                <a href="#" onclick="logout()">
+                    <i class="fa-solid fa-right-from-bracket"></i> Logout
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main" id="mainContent">
+            <!-- Dashboard Page -->
+            <div id="page-dashboard" class="page-section">
+                <div class="page-header">
+                    <div>
+                        <h2>Dashboard</h2>
+                        <div class="breadcrumb">Ringkasan statistik bot</div>
+                    </div>
+                    <button class="btn btn-primary" onclick="sendDailyReminder()">
+                        Kirim Reminder Sekarang
+                    </button>
+                </div>
+
+                <div class="stats-grid anim-fade-up" id="statsGrid">
+                    <div class="stat-card primary anim-fade-up">
+                        <div class="stat-icon"><i class="fa-solid fa-users"></i></div>
+                        <div class="stat-value" id="statUsers">-</div>
+                        <div class="stat-label">Total User</div>
+                    </div>
+                    <div class="stat-card accent anim-fade-up">
+                        <div class="stat-icon"><i class="fa-solid fa-clipboard-list"></i></div>
+                        <div class="stat-value" id="statTasks">-</div>
+                        <div class="stat-label">Total Tugas</div>
+                    </div>
+                    <div class="stat-card warning anim-fade-up">
+                        <div class="stat-icon"><i class="fa-regular fa-clock"></i></div>
+                        <div class="stat-value" id="statPending">-</div>
+                        <div class="stat-label">Belum Selesai</div>
+                    </div>
+                    <div class="stat-card success anim-fade-up">
+                        <div class="stat-icon"><i class="fa-solid fa-circle-check"></i></div>
+                        <div class="stat-value" id="statCompleted">-</div>
+                        <div class="stat-label">Selesai</div>
+                    </div>
+                </div>
+
+                <div class="progress-card anim-fade-up">
+                    <div class="progress-header">
+                        <div class="progress-title">
+                            <div class="progress-title-icon"><i class="fa-solid fa-chart-line"></i></div>
+                            Completion Rate
+                        </div>
+                        <span class="progress-rate" id="completionRate">0%</span>
+                    </div>
+                    <div class="progress-body">
+                        <div class="progress-track">
+                            <div class="progress-fill" id="completionBar" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="actions-card anim-fade-up">
+                    <div class="actions-header">
+                        <div class="actions-icon"><i class="fa-solid fa-bolt"></i></div>
+                        <span class="actions-title">Aksi Cepat</span>
+                    </div>
+                    <div class="actions-body">
+                        <button class="action-btn primary" id="btnCreateTaskDashboard" onclick="navigate('tasks'); openTaskModal()">
+                            <i class="fa-solid fa-plus"></i> Buat Tugas Baru
+                        </button>
+                        <button class="action-btn accent" onclick="navigate('tasks')">
+                            <i class="fa-solid fa-list"></i> Lihat Semua Tugas
+                        </button>
+                        <button class="action-btn outline" onclick="sendDailyReminder()">
+                            <i class="fa-regular fa-bell"></i> Kirim Reminder Harian
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tasks Page (Admin - Kelola Tugas) -->
+            <div id="page-tasks" class="page-section" style="display: none;">
+                <div class="page-header">
+                    <div>
+                        <h2>Kelola Tugas</h2>
+                        <div class="breadcrumb" id="tasksBreadcrumb">Semua tugas</div>
+                    </div>
+                    <div class="btn-group">
+                        <button class="btn btn-outline" onclick="loadTasks()"><i class="fa-solid fa-rotate-right"></i> Refresh</button>
+                        <button class="btn btn-primary" id="btnCreateTask" onclick="openTaskModal()">
+                            <i class="fa-solid fa-plus"></i> Buat Tugas
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Kanban Board -->
+                <div class="kanban-board" id="kanbanBoard">
+                    <!-- Ready Column -->
+                    <div class="kanban-col" id="col-ready">
+                        <div class="kanban-col-header">
+                            <div class="kanban-col-title">
+                                <span class="kanban-dot" style="background:#95A5A6"></span>
+                                Ready
+                            </div>
+                            <span class="kanban-count" id="count-ready">0</span>
+                        </div>
+                        <div class="kanban-col-body" id="cards-ready"></div>
+                    </div>
+
+                    <!-- On Progress Column -->
+                    <div class="kanban-col" id="col-progress">
+                        <div class="kanban-col-header">
+                            <div class="kanban-col-title">
+                                <span class="kanban-dot" style="background:#F39C12"></span>
+                                On Progress
+                            </div>
+                            <span class="kanban-count" id="count-progress">0</span>
+                        </div>
+                        <div class="kanban-col-body" id="cards-progress"></div>
+                    </div>
+
+                    <!-- Done Column -->
+                    <div class="kanban-col" id="col-done">
+                        <div class="kanban-col-header">
+                            <div class="kanban-col-title">
+                                <span class="kanban-dot" style="background:#27AE60"></span>
+                                Done
+                            </div>
+                            <span class="kanban-count" id="count-done">0</span>
+                        </div>
+                        <div class="kanban-col-body" id="cards-done"></div>
+                    </div>
+                </div>
+
+                <div class="empty-state" id="tasksEmpty" style="display: none;">
+                    <div class="empty-icon"><i class="fa-regular fa-folder-open"></i></div>
+                    <p>Belum ada tugas. Buat tugas baru!</p>
+                </div>
+            </div>
+
+            <!-- My Tasks Page (Admin - Tugas Saya) -->
+            <div id="page-mytasks" class="page-section" style="display: none;">
+                <div class="page-header">
+                    <div>
+                        <h2>Tugas Saya</h2>
+                        <div class="breadcrumb">Tugas yang ditugaskan kepada saya</div>
+                    </div>
+                    <div class="btn-group">
+                        <button class="btn btn-outline" onclick="loadMyTasks()"><i class="fa-solid fa-rotate-right"></i> Refresh</button>
+                    </div>
+                </div>
+
+                <!-- Kanban Board for My Tasks -->
+                <div class="kanban-board" id="kanbanMyBoard">
+                    <!-- Ready Column -->
+                    <div class="kanban-col" id="mytask-col-ready">
+                        <div class="kanban-col-header">
+                            <div class="kanban-col-title">
+                                <span class="kanban-dot" style="background:#95A5A6"></span>
+                                Ready
+                            </div>
+                            <span class="kanban-count" id="mycount-ready">0</span>
+                        </div>
+                        <div class="kanban-col-body" id="mycards-ready"></div>
+                    </div>
+
+                    <!-- On Progress Column -->
+                    <div class="kanban-col" id="mytask-col-progress">
+                        <div class="kanban-col-header">
+                            <div class="kanban-col-title">
+                                <span class="kanban-dot" style="background:#F39C12"></span>
+                                On Progress
+                            </div>
+                            <span class="kanban-count" id="mycount-progress">0</span>
+                        </div>
+                        <div class="kanban-col-body" id="mycards-progress"></div>
+                    </div>
+
+                    <!-- Done Column -->
+                    <div class="kanban-col" id="mytask-col-done">
+                        <div class="kanban-col-header">
+                            <div class="kanban-col-title">
+                                <span class="kanban-dot" style="background:#27AE60"></span>
+                                Done
+                            </div>
+                            <span class="kanban-count" id="mycount-done">0</span>
+                        </div>
+                        <div class="kanban-col-body" id="mycards-done"></div>
+                    </div>
+                </div>
+
+                <div class="empty-state" id="mytasksEmpty" style="display: none;">
+                    <div class="empty-icon"><i class="fa-regular fa-folder-open"></i></div>
+                    <p>Belum ada tugas untuk Anda.</p>
+                </div>
+            </div>
+
+            <!-- Users Page -->
+            <div id="page-users" class="page-section" style="display: none;">
+                <div class="page-header">
+                    <div>
+                        <h2>Kelola User</h2>
+                        <div class="breadcrumb">Manajemen user bot</div>
+                    </div>
+                    <div class="btn-group">
+                        <button class="btn btn-outline" onclick="loadUsers()"><i class="fa-solid fa-rotate-right"></i> Refresh</button>
+                        <button class="btn btn-primary" onclick="openUserModal()">
+                            <i class="fa-solid fa-user-plus"></i> Tambah User
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-body">
+                        <div class="table-wrapper">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Nama</th>
+                                        <th>No. HP</th>
+                                        <th>Kelas</th>
+                                        <th>Role</th>
+                                        <th>Progress</th>
+                                        <th>Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="usersBody"></tbody>
+                            </table>
+                        </div>
+                        <div class="empty-state" id="usersEmpty" style="display: none;">
+                            <div class="empty-icon"><i class="fa-solid fa-users"></i></div>
+                            <p>Belum ada user.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Page -->
+            <div id="page-settings" class="page-section" style="display: none;">
+                <div class="page-header">
+                    <div>
+                        <h2>Pengaturan</h2>
+                        <div class="breadcrumb">Konfigurasi bot</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fa-solid fa-robot"></i> Status Bot</h3>
+                    </div>
+                    <div class="card-body">
+                        <!-- Bot Status Row -->
+                        <div class="bot-status-row">
+                            <div class="bs-large">
+                                <span class="bs-dot-large" id="settingsBotDotLarge"></span>
+                                <div>
+                                    <div class="bs-status-text" id="settingsBotText">Memuat...</div>
+                                    <div class="bs-status-sub">WhatsApp connection status</div>
+                                </div>
+                            </div>
+                            <div class="bot-toggle-wrap">
+                                <label class="switch-label">
+                                    <span class="switch-text">Bot</span>
+                                    <div class="switch" id="botToggleSwitch">
+                                        <input type="checkbox" id="toggleBot">
+                                        <span class="slider"></span>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fa-regular fa-clock"></i> Reminder Otomatis</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="reminder-row">
+                            <div class="reminder-item">
+                                <label class="switch-label">
+                                    <span class="switch-text">Aktifkan Reminder</span>
+                                    <div class="switch" id="reminderToggleSwitch">
+                                        <input type="checkbox" id="toggleReminder">
+                                        <span class="slider"></span>
+                                    </div>
+                                </label>
+                            </div>
+                            <div class="reminder-time-wrap" id="reminderTimeWrap">
+                                <label class="form-label">Jam Pengiriman</label>
+                                <div class="time-input-group">
+                                    <i class="fa-regular fa-clock"></i>
+                                    <input type="time" id="reminderTime" value="09:00">
+                                    <span class="time-hint">WIB</span>
+                                </div>
+                                <small>Reminder akan dikirim setiap hari pada jam yang ditentukan</small>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary mt-16" onclick="saveSettings()"><i class="fa-solid fa-floppy-disk"></i> Simpan Pengaturan</button>
+                        <div id="settingsAlert" class="alert mt-8"></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fa-solid fa-wrench"></i> Mode Maintenance</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label for="maintenanceMsg">Pesan Maintenance</label>
+                            <textarea id="maintenanceMsg" rows="3" placeholder="Pesan yang ditampilkan saat bot maintenance"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fa-solid fa-circle-info"></i> Info Sistem</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="info-grid">
+                            <div class="info-item"><strong><i class="fa-solid fa-robot"></i> Bot Name:</strong> <span id="infoBotName">-</span></div>
+                            <div class="info-item"><strong><i class="fa-solid fa-database"></i> Database:</strong> JSON File</div>
+                            <div class="info-item"><strong><i class="fa-solid fa-globe"></i> Web Port:</strong> 3000</div>
+                            <div class="info-item"><strong><i class="fa-solid fa-code"></i> Version:</strong> 1.0.0</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Task Modal -->
+    <div class="mo" id="taskModal">
+        <div class="mo-panel">
+            <div class="mo-hdr">
+                <h3 id="taskModalTitle">Buat Tugas Baru</h3>
+                <button class="mo-close" onclick="closeTaskModal()">&times;</button>
+            </div>
+            <div class="mo-body">
+                <div id="taskModalAlert" class="alert"></div>
+                <form id="taskForm">
+                    <input type="hidden" id="taskEditId">
+                    <div class="form-group">
+                        <label for="taskName">Nama Tugas *</label>
+                        <input type="text" id="taskName" required placeholder="Contoh: Tugas UTS Pemrograman Web">
+                    </div>
+                    <div class="form-group">
+                        <label for="taskClass">Kelas</label>
+                        <input type="text" id="taskClass" placeholder="Contoh: TI-3A, SI-2B">
+                    </div>
+                    <div class="form-group">
+                        <label for="taskDetail">Detail / Instruksi</label>
+                        <textarea id="taskDetail" rows="3" placeholder="Jelaskan isi tugas..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="taskDeadline">Deadline *</label>
+                        <input type="datetime-local" id="taskDeadline" required>
+                    </div>
+                </form>
+            </div>
+            <div class="mo-foot">
+                <button class="btn btn-outline" onclick="closeTaskModal()">Batal</button>
+                <button class="btn btn-primary" id="taskSubmitBtn" onclick="submitTask()">Simpan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Modal -->
+    <div class="mo" id="userModal">
+        <div class="mo-panel">
+            <div class="mo-hdr">
+                <h3 id="userModalTitle">Tambah User</h3>
+                <button class="mo-close" onclick="closeUserModal()">&times;</button>
+            </div>
+            <div class="mo-body">
+                <div id="userModalAlert" class="alert"></div>
+                <form id="userForm">
+                    <input type="hidden" id="userEditPhone">
+                    <div class="form-group">
+                        <label for="userPhone">No. HP *</label>
+                        <input type="text" id="userPhone" required placeholder="6281234567890">
+                    </div>
+                    <div class="form-group">
+                        <label for="userName">Nama *</label>
+                        <input type="text" id="userName" required placeholder="Nama lengkap">
+                    </div>
+                    <div class="form-group">
+                        <label for="userClass">Kelas</label>
+                        <input type="text" id="userClass" placeholder="Contoh: TI-3A">
+                    </div>
+                    <div class="form-group">
+                        <label for="userRole">Role *</label>
+                        <select id="userRole" required>
+                            <option value="user">User</option>
+                            <option value="admin">Admin</option>
+                            <option value="super_admin">Super Admin</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="mo-foot">
+                <button class="btn btn-outline" onclick="closeUserModal()">Batal</button>
+                <button class="btn btn-primary" id="userSubmitBtn" onclick="submitUser()">Simpan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirm Modal -->
+    <div class="mo" id="confirmModal">
+        <div class="mo-panel" style="max-width:400px">
+            <div class="mo-hdr">
+                <h3 id="confirmTitle">Konfirmasi</h3>
+                <button class="mo-close" onclick="closeConfirmModal()">&times;</button>
+            </div>
+            <div class="mo-body">
+                <p id="confirmMessage"></p>
+            </div>
+            <div class="mo-foot">
+                <button class="btn btn-outline" onclick="closeConfirmModal()">Batal</button>
+                <button class="btn btn-danger" id="confirmBtn" onclick="confirmAction()">Ya</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Task Detail Modal -->
+    <div class="mo" id="taskDetailModal">
+        <div class="mo-panel lg">
+            <div class="mo-hdr">
+                <h3 id="detailModalTitle"><i class="fa-solid fa-clipboard-list"></i> Detail Tugas</h3>
+                <button class="mo-close" onclick="closeTaskDetailModal()">&times;</button>
+            </div>
+            <div class="mo-body" id="taskDetailBody">
+                Memuat...
+            </div>
+            <div class="mo-foot" id="taskDetailFoot">
+                <button class="btn btn-outline" onclick="closeTaskDetailModal()">Tutup</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/app.js"></script>
+</body>
+</html>

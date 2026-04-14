@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Bot WA Tugas IBIK</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="lg-wrap">
+        <div class="lg-card">
+            <div class="lg-icon">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z" fill="white"/>
+                </svg>
+            </div>
+            <h1 class="lg-title">Bot WA Tugas IBIK</h1>
+            <p class="lg-sub">Masuk dengan nomor WhatsApp Anda</p>
+
+            <div id="alertError" class="alert alert-err"></div>
+            <div id="alertSuccess" class="alert alert-suc"></div>
+
+            <form id="loginForm" autocomplete="off">
+                <div class="fg">
+                    <label for="phone">Nomor WhatsApp</label>
+                    <input type="text" id="phone" placeholder="6281234567890" required inputmode="numeric">
+                    <small>Format: kode negara + nomor (tanpa + atau spasi)</small>
+                </div>
+                <button type="submit" class="btn btn-p btn-block btn-lg" id="loginBtn" style="margin-top:8px;">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                        <path d="M5 3h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zm7 10l7-4.5L12 13v0z"/>
+                    </svg>
+                    Masuk
+                </button>
+            </form>
+
+            <div class="login-footer">
+                <p>Belum terdaftar? Hubungi admin untuk mendapatkan akses.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        fetch('/api/auth/me')
+            .then(r => r.json())
+            .then(d => { if (d.user) window.location.href = '/dashboard'; });
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const err = document.getElementById('alertError');
+            const suc = document.getElementById('alertSuccess');
+            const btn = document.getElementById('loginBtn');
+            err.style.display = 'none';
+            suc.style.display = 'none';
+            btn.disabled = true;
+            btn.innerHTML = `<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/><path d="M12 6v6l4 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg> Memuat...`;
+
+            try {
+                const res = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phone: document.getElementById('phone').value.trim() })
+                });
+                const d = await res.json();
+                if (!res.ok) {
+                    err.textContent = d.error || 'Login gagal.';
+                    err.style.display = 'block';
+                    btn.disabled = false;
+                    btn.innerHTML = `<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M5 3h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zm7 10l7-4.5L12 13v0z"/></svg> Masuk`;
+                    return;
+                }
+                suc.textContent = 'Login berhasil! Mengalihkan...';
+                suc.style.display = 'block';
+                setTimeout(() => window.location.href = '/dashboard', 600);
+            } catch {
+                err.textContent = 'Terjadi kesalahan koneksi.';
+                err.style.display = 'block';
+                btn.disabled = false;
+                btn.innerHTML = `<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M5 3h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zm7 10l7-4.5L12 13v0z"/></svg> Masuk`;
+            }
+        });
+    </script>
+</body>
+</html>

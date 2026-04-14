@@ -1,0 +1,28 @@
+{
+  "name": "botwa-tugas-ibik",
+  "version": "1.0.0",
+  "description": "Bot WA untuk mengelola tugas kuliah",
+  "main": "botwa.js",
+  "scripts": {
+    "start": "node botwa.js",
+    "dev": "node botwa.js"
+  },
+  "keywords": [
+    "whatsapp",
+    "bot",
+    "tugas"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@whiskeysockets/baileys": "^6.7.21",
+    "dotenv": "^16.3.1",
+    "express": "^5.2.1",
+    "express-session": "^1.19.0",
+    "lowdb": "^7.0.1",
+    "pino": "^8.17.2",
+    "pino-pretty": "^10.3.1",
+    "qrcode": "^1.5.4",
+    "qrcode-terminal": "^0.12.0"
+  }
+}
